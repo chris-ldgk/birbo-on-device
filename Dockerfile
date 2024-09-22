@@ -1,4 +1,4 @@
-FROM --platform=linux/arm64 node:22-bookworm-slim AS node
+FROM node:22-bookworm-slim AS node
 RUN apt-get update && apt-get install -y \
     ca-certificates \
     curl \
