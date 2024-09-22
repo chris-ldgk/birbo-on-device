@@ -17,4 +17,8 @@ WORKDIR /opt/app/prod
 COPY . .
 COPY --from=installer /opt/app/installer/node_modules ./node_modules
 
+ENV LD_LIBRARY_PATH=/opt/vc/lib
+ENV SUPABASE_URL=
+ENV SUPABASE_KEY=
+
 CMD ["node", "--experimental-strip-types", "--experimental-specifier-resolution=node", "index.ts"]

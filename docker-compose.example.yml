@@ -1,0 +1,15 @@
+services:
+  on-device:
+    image: chrisldgk/birbo-on-device:latest
+    pull_policy: always
+    env: 
+      LD_LIBRARY_PATH: /opt/vc/lib
+      SUPABASE_URL: "" 
+      SUPABASE_KEY: ""
+    volumes:
+      - /opt/vc:/opt/vc
+      - /sys:/sys
+    device:
+      - /dev/vchiq
+      - /dev/gpiomem
+    
