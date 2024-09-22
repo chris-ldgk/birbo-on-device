@@ -51,7 +51,7 @@ export async function recordVideoOnCamera(options: RecordVideoOptions) {
     height,
     denoise,
   });
-  const command = `rpicam-vid ${args}`;
+  const command = `/usr/bin/rpicam-vid ${args}`;
 
   await execAsync(command);
 }
