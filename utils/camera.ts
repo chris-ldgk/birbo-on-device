@@ -4,7 +4,7 @@ export const codecs = ["h264", "mjpeg", "mp4"] as const;
 
 export interface RecordVideoOptions {
   output: string;
-  timeout: string;
+  timeout: number;
   codec?: "mjpeg" | "yuv420";
   level?: number;
   segment?: number;

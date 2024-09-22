@@ -1,7 +1,10 @@
 import { Gpio } from "onoff";
+import { getEnv } from "./env.ts";
 
-const TRIG_PIN: number = 526; // GPIO14
-const ECHO_PIN: number = 527; // GPIO15
+const { GPIO_TRIGGER_PIN, GPIO_ECHO_PIN } = getEnv();
+
+const TRIG_PIN: number = GPIO_TRIGGER_PIN; // GPIO14
+const ECHO_PIN: number = GPIO_ECHO_PIN; // GPIO15
 
 let trig: Gpio | null = null;
 let echo: Gpio | null = null;
@@ -35,7 +38,7 @@ export async function getDistance(): Promise<number> {
 
   // Calculate the distance
   const duration = Number(end - start);
-  return (duration * 0.034) / 2;
+  return (duration * 0.034) / 2 / 1000; // Distance in cm
 }
 
 export function destroySensor() {
