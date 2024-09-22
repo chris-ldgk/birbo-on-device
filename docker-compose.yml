@@ -1,0 +1,3 @@
+services:
+  on-device:
+    image: on-device:latest

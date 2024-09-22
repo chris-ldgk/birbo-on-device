@@ -1,0 +1,23 @@
+{
+  "name": "on-device-node",
+  "version": "1.0.0",
+  "description": "",
+  "module": "index.ts",
+  "type": "module",
+  "scripts": {
+    "start": "tsc && node --experimental-strip-types --experimental-specifier-resolution=node index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^22.5.5",
+    "dotenv": "^16.4.5",
+    "typescript": "^5.6.2"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.4",
+    "onoff": "^6.0.3"
+  }
+}
