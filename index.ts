@@ -77,11 +77,13 @@ const PROCESSED_SUFFIX = "mp4";
 //   console.log(`Processed video ${timestamp} deleted`);
 // }
 
+let readInterval: NodeJS.Timeout;
+
 async function main() {
   initializeSensor();
-  while (true) {
+  readInterval = setInterval(async () => {
     console.log({ distance: await getDistance() });
-  }
+  }, 1000);
   // await mkdir(VIDEO_DIR, { recursive: true });
   // const now = Date.now();
 
@@ -96,5 +98,6 @@ await main();
 
 process.on("SIGINT", () => {
   destroySensor();
+  clearInterval(readInterval!);
   process.exit(0);
 });

@@ -17,8 +17,8 @@ export async function getDistance(): Promise<number> {
   }
 
   // Trigger a pulse with 10µs
-  trig.writeSync(1);
-  trig.writeSync(0);
+  await trig.write(1);
+  await trig.write(0);
 
   // Wait for the pulse to return
   let start: bigint | null = null;
