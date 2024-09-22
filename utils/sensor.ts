@@ -1,7 +1,7 @@
 import { Gpio } from "onoff";
 
-const TRIG_PIN: number = 14;
-const ECHO_PIN: number = 15;
+const TRIG_PIN: number = 526; // GPIO14
+const ECHO_PIN: number = 527; // GPIO15
 
 let trig: Gpio | null = null;
 let echo: Gpio | null = null;
