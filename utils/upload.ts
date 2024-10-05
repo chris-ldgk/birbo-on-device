@@ -30,12 +30,8 @@ export async function uploadFile(
         console.error("Failed because: " + error);
         reject(error);
       },
-      onProgress: (bytesUploaded, bytesTotal) => {
-        const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2);
-        console.log(bytesUploaded, bytesTotal, percentage + "%");
-      },
+      // onProgress: (bytesUploaded, bytesTotal) => {},
       onSuccess: function () {
-        console.log("Download %s from %s", upload.url);
         resolve();
       },
     });
