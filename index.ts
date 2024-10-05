@@ -1,4 +1,3 @@
-import { createClient } from "@supabase/supabase-js";
 import { resolve } from "node:path";
 import { mkdir, unlink, readFile } from "node:fs/promises";
 import { recordVideoOnCamera } from "./utils/camera.ts";
@@ -9,10 +8,9 @@ import {
   initializeSensor,
 } from "./utils/sensor.ts";
 import { getEnv } from "./utils/env.ts";
+import { uploadFile } from "./utils/upload.ts";
 
 const {
-  SUPABASE_URL,
-  SUPABASE_KEY,
   TRIGGER_DISTANCE,
   TRIGGER_CHECK_INTERVAL,
   VIDEO_RECORDING_DURATION,
@@ -20,10 +18,6 @@ const {
   VIDEO_WIDTH,
   VIDEO_HEIGHT,
 } = getEnv();
-if (!SUPABASE_URL || !SUPABASE_KEY) {
-  throw new Error("Missing SUPABASE_URL or SUPABASE_KEY");
-}
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const BUCKET_NAME = "videos";
 const VIDEO_DIR = resolve(process.cwd(), "videos");
@@ -52,20 +46,11 @@ async function deleteUnprocessedVideo(timestamp: number) {
 
 async function uploadVideo(timestamp: number) {
   console.log(`Uploading video ${timestamp}...`);
-  const content = await readFile(
-    `${VIDEO_DIR}/${timestamp}.${PROCESSED_SUFFIX}`,
-    {
-      encoding: "binary",
-    }
+  const buffer = await readFile(
+    `${VIDEO_DIR}/${timestamp}.${PROCESSED_SUFFIX}`
   );
-  const { error } = await supabase.storage
-    .from(BUCKET_NAME)
-    .upload(`${timestamp}.mp4`, content, {
-      contentType: `video/mp4`,
-    });
-  if (error) {
-    throw error;
-  }
+  const blob = new Blob([buffer]);
+  await uploadFile(blob, BUCKET_NAME, `${timestamp}.${PROCESSED_SUFFIX}`);
 }
 
 async function convertVideo(timestamp: number) {
@@ -87,9 +72,9 @@ async function videoFlow() {
   const now = Date.now();
   await recordVideo(now);
   await convertVideo(now);
-  // await deleteUnprocessedVideo(now);
+  await deleteUnprocessedVideo(now);
   await uploadVideo(now);
-  // await deleteProcessedVideo(now);
+  await deleteProcessedVideo(now);
 }
 
 async function sleep(ms: number) {
