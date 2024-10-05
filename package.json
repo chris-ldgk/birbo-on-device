@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "tsc && node --experimental-strip-types --experimental-specifier-resolution=node index.ts",
+    "start:quick": "ndoe --experimental-strip-types --experimental-specifier-resolution=node index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

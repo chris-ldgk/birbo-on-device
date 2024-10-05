@@ -89,9 +89,9 @@ async function videoFlow() {
   const now = Date.now();
   await recordVideo(now);
   await convertVideo(now);
-  await deleteUnprocessedVideo(now);
+  // await deleteUnprocessedVideo(now);
   await uploadVideo(now);
-  await deleteProcessedVideo(now);
+  // await deleteProcessedVideo(now);
 }
 
 async function sleep(ms: number) {

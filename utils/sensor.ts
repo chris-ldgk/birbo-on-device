@@ -24,16 +24,13 @@ export async function getDistance(): Promise<number> {
   await trig.write(0);
 
   // Wait for the pulse to return
-  let start: bigint | null = null;
-  let end: bigint | null = null;
+  let start: bigint = BigInt(0);
+  let end: bigint = BigInt(0);
   while (echo.readSync() === 0) {
     start = process.hrtime.bigint();
   }
   while (echo.readSync() === 1) {
     end = process.hrtime.bigint();
-  }
-  if (!start || !end) {
-    throw new Error("Invalid start or end time");
   }
 
   // Calculate the distance
