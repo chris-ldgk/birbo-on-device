@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",
-    "onoff": "^6.0.3"
+    "onoff": "^6.0.3",
+    "tus-js-client": "^4.2.3"
   }
 }
