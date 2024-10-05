@@ -82,8 +82,6 @@ async function deleteProcessedVideo(timestamp: number) {
   console.log(`Processed video ${timestamp} deleted`);
 }
 
-let readInterval: NodeJS.Timeout;
-
 async function videoFlow() {
   await mkdir(VIDEO_DIR, { recursive: true });
   const now = Date.now();
@@ -98,12 +96,13 @@ async function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-let lastUpdate = 0;
-let lastTrigger = 0;
+let lastUpdate: number = 0;
+let lastTrigger: number = 0;
+let stop: boolean = false;
 
 async function main() {
   initializeSensor();
-  readInterval = setInterval(async () => {
+  while (!stop) {
     console.log({
       lastUpdate,
       now: performance.now(),
@@ -118,14 +117,14 @@ async function main() {
       await videoFlow();
     }
     lastUpdate = performance.now();
-    await sleep(1000);
-  }, TRIGGER_CHECK_INTERVAL);
+    await sleep(TRIGGER_CHECK_INTERVAL);
+  }
 }
 
 await main();
 
 process.on("SIGINT", () => {
+  stop = true;
   destroySensor();
-  clearInterval(readInterval!);
   process.exit(0);
 });
