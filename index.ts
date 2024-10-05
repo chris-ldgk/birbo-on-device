@@ -10,6 +10,24 @@ import {
 } from "./utils/sensor.ts";
 import { getEnv } from "./utils/env.ts";
 import { uploadFile } from "./utils/upload.ts";
+import {
+  CONVERT_VIDEO_FAIL_LOG,
+  CONVERT_VIDEO_LOG,
+  CONVERT_VIDEO_SUCCESS_LOG,
+  DELETE_PROCESSED_VIDEO_FAIL_LOG,
+  DELETE_PROCESSED_VIDEO_LOG,
+  DELETE_PROCESSED_VIDEO_SUCCESS_LOG,
+  DELETE_UNPROCESSED_VIDEO_FAIL_LOG,
+  DELETE_UNPROCESSED_VIDEO_LOG,
+  DELETE_UNPROCESSED_VIDEO_SUCCESS_LOG,
+  getLogger,
+  RECORD_VIDEO_FAIL_LOG,
+  RECORD_VIDEO_LOG,
+  RECORD_VIDEO_SUCCESS_LOG,
+  UPLOAD_VIDEO_FAIL_LOG,
+  UPLOAD_VIDEO_LOG,
+  UPLOAD_VIDEO_SUCCESS_LOG,
+} from "./utils/logger.ts";
 
 const {
   TRIGGER_DISTANCE,
@@ -26,45 +44,69 @@ const VIDEO_DIR = resolve(process.cwd(), "videos");
 const UNPROCESSED_SUFFIX = "h264";
 const PROCESSED_SUFFIX = "mp4";
 
+const logger = getLogger();
+
 async function recordVideo(timestamp: number) {
-  console.log(`Recording video ${timestamp}...`);
-  await recordVideoOnCamera({
-    output: `${VIDEO_DIR}/${timestamp}.${UNPROCESSED_SUFFIX}`,
-    timeout: VIDEO_RECORDING_DURATION,
-    width: VIDEO_WIDTH,
-    height: VIDEO_HEIGHT,
-    framerate: VIDEO_FRAMERATE,
-    level: 4.2,
-  });
-  console.log(`Video ${timestamp} recorded`);
+  logger.info(RECORD_VIDEO_LOG(timestamp));
+  try {
+    await recordVideoOnCamera({
+      output: `${VIDEO_DIR}/${timestamp}.${UNPROCESSED_SUFFIX}`,
+      timeout: VIDEO_RECORDING_DURATION,
+      width: VIDEO_WIDTH,
+      height: VIDEO_HEIGHT,
+      framerate: VIDEO_FRAMERATE,
+      level: 4.2,
+    });
+
+    logger.info(RECORD_VIDEO_SUCCESS_LOG(timestamp));
+  } catch (e) {
+    logger.error(RECORD_VIDEO_FAIL_LOG(timestamp));
+  }
 }
 
 async function deleteUnprocessedVideo(timestamp: number) {
-  console.log(`Deleting unprocessed video ${timestamp}...`);
-  await unlink(`${VIDEO_DIR}/${timestamp}.${UNPROCESSED_SUFFIX}`);
-  console.log(`Unprocessed video ${timestamp} deleted`);
+  logger.info(DELETE_UNPROCESSED_VIDEO_LOG(timestamp));
+  try {
+    await unlink(`${VIDEO_DIR}/${timestamp}.${UNPROCESSED_SUFFIX}`);
+    logger.info(DELETE_UNPROCESSED_VIDEO_SUCCESS_LOG(timestamp));
+  } catch (e) {
+    logger.error(DELETE_UNPROCESSED_VIDEO_FAIL_LOG(timestamp));
+  }
 }
 
 async function uploadVideo(timestamp: number) {
-  console.log(`Uploading video ${timestamp}...`);
-  const file = createReadStream(
-    `${VIDEO_DIR}/${timestamp}.${PROCESSED_SUFFIX}`
-  );
-  await uploadFile(file, BUCKET_NAME, `${timestamp}.${PROCESSED_SUFFIX}`);
+  logger.info(UPLOAD_VIDEO_LOG(timestamp));
+  try {
+    const file = createReadStream(
+      `${VIDEO_DIR}/${timestamp}.${PROCESSED_SUFFIX}`
+    );
+    await uploadFile(file, BUCKET_NAME, `${timestamp}.${PROCESSED_SUFFIX}`);
+    logger.info(UPLOAD_VIDEO_SUCCESS_LOG(timestamp));
+  } catch (e) {
+    logger.error(UPLOAD_VIDEO_FAIL_LOG(timestamp));
+  }
 }
 
 async function convertVideo(timestamp: number) {
-  console.log(`Converting video ${timestamp}...`);
-  await execAsync(
-    `ffmpeg -framerate 30 -i ${VIDEO_DIR}/${timestamp}.${UNPROCESSED_SUFFIX} -c copy ${VIDEO_DIR}/${timestamp}.${PROCESSED_SUFFIX}`
-  );
-  console.log(`Video ${timestamp} converted`);
+  logger.info(CONVERT_VIDEO_LOG(timestamp));
+  try {
+    await execAsync(
+      `ffmpeg -framerate ${VIDEO_FRAMERATE} -i ${VIDEO_DIR}/${timestamp}.${UNPROCESSED_SUFFIX} -c copy ${VIDEO_DIR}/${timestamp}.${PROCESSED_SUFFIX}`
+    );
+    logger.info(CONVERT_VIDEO_SUCCESS_LOG(timestamp));
+  } catch (e) {
+    logger.error(CONVERT_VIDEO_FAIL_LOG(timestamp));
+  }
 }
 
 async function deleteProcessedVideo(timestamp: number) {
-  console.log(`Deleting processed video ${timestamp}...`);
-  await unlink(`${VIDEO_DIR}/${timestamp}.${PROCESSED_SUFFIX}`);
-  console.log(`Processed video ${timestamp} deleted`);
+  logger.info(DELETE_PROCESSED_VIDEO_LOG(timestamp));
+  try {
+    await unlink(`${VIDEO_DIR}/${timestamp}.${PROCESSED_SUFFIX}`);
+    logger.info(DELETE_PROCESSED_VIDEO_SUCCESS_LOG(timestamp));
+  } catch (e) {
+    logger.error(DELETE_PROCESSED_VIDEO_FAIL_LOG(timestamp));
+  }
 }
 
 async function videoFlow() {
@@ -88,24 +130,15 @@ let stop: boolean = false;
 async function main() {
   initializeSensor();
   while (!stop) {
-    console.log({
-      lastUpdate,
-      now: performance.now(),
-      diff: performance.now() - lastUpdate,
-    });
-    try {
-      const distance = await getDistance();
-      if (
-        distance < TRIGGER_DISTANCE &&
-        performance.now() - lastTrigger > VIDEO_RECORDING_DURATION
-      ) {
-        lastTrigger = performance.now();
-        await videoFlow();
-      }
-      lastUpdate = performance.now();
-    } catch (e) {
-      console.error(e);
+    const distance = await getDistance();
+    if (
+      distance < TRIGGER_DISTANCE &&
+      performance.now() - lastTrigger > VIDEO_RECORDING_DURATION
+    ) {
+      lastTrigger = performance.now();
+      await videoFlow();
     }
+    lastUpdate = performance.now();
     await sleep(TRIGGER_CHECK_INTERVAL);
   }
 }

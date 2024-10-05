@@ -1,6 +1,7 @@
 import tus from "tus-js-client";
 import { getEnv } from "./env.ts";
 import type { ReadStream } from "node:fs";
+import { getLogger } from "./logger.ts";
 
 const { SUPABASE_URL, SUPABASE_KEY } = getEnv();
 
@@ -27,10 +28,8 @@ export async function uploadFile(
       },
       chunkSize: 6 * 1024 * 1024,
       onError: (error) => {
-        console.error("Failed because: " + error);
         reject(error);
       },
-      // onProgress: (bytesUploaded, bytesTotal) => {},
       onSuccess: function () {
         resolve();
       },
