@@ -1,5 +1,4 @@
 import tus from "tus-js-client";
-import { getSupabaseClient } from "./supabase.ts";
 import { getEnv } from "./env.ts";
 import type { ReadStream } from "node:fs";
 
@@ -10,14 +9,6 @@ export async function uploadFile(
   bucket: string,
   key: string
 ): Promise<void> {
-  const supabase = getSupabaseClient();
-  const {
-    data: { session },
-  } = await supabase.auth.refreshSession();
-  if (!session) {
-    throw new Error("No session found");
-  }
-
   return new Promise((resolve, reject) => {
     const upload = new tus.Upload(file, {
       endpoint: `${SUPABASE_URL}/storage/v1/upload/resumable`,
