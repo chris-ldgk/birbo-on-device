@@ -1,5 +1,5 @@
 import { resolve } from "node:path";
-import { mkdir, unlink, readFile } from "node:fs/promises";
+import { mkdir, unlink } from "node:fs/promises";
 import { createReadStream } from "node:fs";
 import { recordVideoOnCamera } from "./utils/camera.ts";
 import { execAsync } from "./utils/execAsync.ts";
@@ -10,7 +10,6 @@ import {
 } from "./utils/sensor.ts";
 import { getEnv } from "./utils/env.ts";
 import { uploadFile } from "./utils/upload.ts";
-import { Readable } from "node:stream";
 
 const {
   TRIGGER_DISTANCE,

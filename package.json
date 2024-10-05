@@ -5,8 +5,9 @@
   "module": "index.ts",
   "type": "module",
   "scripts": {
-    "start": "tsc && node --experimental-strip-types --experimental-specifier-resolution=node index.ts",
-    "start:quick": "node --experimental-strip-types --experimental-specifier-resolution=node index.ts",
+    "dev": "tsc && node --experimental-strip-types --experimental-specifier-resolution=node index.ts",
+    "bundle": "tsc && esbuild index.ts --bundle --outfile=dist/index.mjs --format=esm --platform=node --banner:js=\"import {createRequire} from 'module';\nconst require = createRequire(import.meta.url);\nimport { dirname } from 'path';\nimport { fileURLToPath } from 'url';\nconst __dirname = dirname(fileURLToPath(import.meta.url));\"",
+    "start": "node dist/index.mjs",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -15,6 +16,7 @@
   "devDependencies": {
     "@types/node": "^22.5.5",
     "dotenv": "^16.4.5",
+    "esbuild": "^0.24.0",
     "typescript": "^5.6.2"
   },
   "dependencies": {
