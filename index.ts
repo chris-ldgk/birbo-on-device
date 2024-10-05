@@ -108,15 +108,19 @@ async function main() {
       now: performance.now(),
       diff: performance.now() - lastUpdate,
     });
-    const distance = await getDistance();
-    if (
-      distance < TRIGGER_DISTANCE &&
-      performance.now() - lastTrigger > VIDEO_RECORDING_DURATION
-    ) {
-      lastTrigger = performance.now();
-      await videoFlow();
+    try {
+      const distance = await getDistance();
+      if (
+        distance < TRIGGER_DISTANCE &&
+        performance.now() - lastTrigger > VIDEO_RECORDING_DURATION
+      ) {
+        lastTrigger = performance.now();
+        await videoFlow();
+      }
+      lastUpdate = performance.now();
+    } catch (e) {
+      console.error(e);
     }
-    lastUpdate = performance.now();
     await sleep(TRIGGER_CHECK_INTERVAL);
   }
 }
