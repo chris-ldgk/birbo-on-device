@@ -1,29 +1,29 @@
 import tus from "tus-js-client";
 import { getSupabaseClient } from "./supabase.ts";
 import { getEnv } from "./env.ts";
+import type { ReadStream } from "node:fs";
 
-const { SUPABASE_URL } = getEnv();
+const { SUPABASE_URL, SUPABASE_KEY } = getEnv();
 
 export async function uploadFile(
-  file: Blob,
+  file: ReadStream,
   bucket: string,
   key: string
 ): Promise<void> {
   const supabase = getSupabaseClient();
   const {
     data: { session },
-  } = await supabase.auth.getSession();
+  } = await supabase.auth.refreshSession();
   if (!session) {
     throw new Error("No session found");
   }
 
   return new Promise((resolve, reject) => {
-    console.log({ type: file.type });
     const upload = new tus.Upload(file, {
       endpoint: `${SUPABASE_URL}/storage/v1/upload/resumable`,
       retryDelays: [0, 1000, 3000, 5000],
       headers: {
-        authorization: `Bearer ${session.access_token}`,
+        authorization: `Bearer ${SUPABASE_KEY}`,
         "x-upsert": "true",
       },
       uploadDataDuringCreation: true,

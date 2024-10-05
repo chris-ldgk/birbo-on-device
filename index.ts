@@ -1,5 +1,6 @@
 import { resolve } from "node:path";
 import { mkdir, unlink, readFile } from "node:fs/promises";
+import { createReadStream } from "node:fs";
 import { recordVideoOnCamera } from "./utils/camera.ts";
 import { execAsync } from "./utils/execAsync.ts";
 import {
@@ -9,6 +10,7 @@ import {
 } from "./utils/sensor.ts";
 import { getEnv } from "./utils/env.ts";
 import { uploadFile } from "./utils/upload.ts";
+import { Readable } from "node:stream";
 
 const {
   TRIGGER_DISTANCE,
@@ -46,11 +48,10 @@ async function deleteUnprocessedVideo(timestamp: number) {
 
 async function uploadVideo(timestamp: number) {
   console.log(`Uploading video ${timestamp}...`);
-  const buffer = await readFile(
+  const file = createReadStream(
     `${VIDEO_DIR}/${timestamp}.${PROCESSED_SUFFIX}`
   );
-  const blob = new Blob([buffer]);
-  await uploadFile(blob, BUCKET_NAME, `${timestamp}.${PROCESSED_SUFFIX}`);
+  await uploadFile(file, BUCKET_NAME, `${timestamp}.${PROCESSED_SUFFIX}`);
 }
 
 async function convertVideo(timestamp: number) {
