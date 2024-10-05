@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsc && node --experimental-strip-types --experimental-specifier-resolution=node index.ts",
-    "build": "tsc && esbuild index.ts --bundle --outfile=dist/index.mjs --format=esm --platform=node --banner:js=\"import {createRequire} from 'module';\nconst require = createRequire(import.meta.url);\nimport { dirname } from 'path';\nimport { fileURLToPath } from 'url';\nconst __dirname = dirname(fileURLToPath(import.meta.url));\"",
+    "build": "tsc && esbuild index.ts --bundle --outfile=dist/index.mjs --format=esm --platform=node --banner:js=\"import {createRequire} from 'module';\nconst require = createRequire(import.meta.url);\nimport { dirname } from 'path';\nimport { fileURLToPath } from 'url';\nconst __dirname = dirname(fileURLToPath(import.meta.url));\nconst __filename = fileURLToPath(import.meta.url)\"",
     "start": "node dist/index.mjs",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
